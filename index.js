@@ -15,34 +15,32 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+
+// Importa as rotas
 const routes = require('./routes/routes');
 app.use('/api', routes);
 
-// ⭐ CRUCIAL: Railway usa MONGO_URL (não MONGODB_URL)
-const mongoURL = process.env.MONGO_URL;
+// Conexão com MongoDB
+const mongoURL = process.env.MONGO_URL || process.env.MONGODB_URL;
 
-console.log('=== DIAGNÓSTICO ===');
-console.log('PORT:', PORT);
-console.log('MONGO_URL existe?', mongoURL ? '✅ SIM' : '❌ NÃO');
-console.log('Todas variáveis com MONGO:', Object.keys(process.env).filter(k => k.includes('MONGO')));
+console.log('🔍 Iniciando servidor...');
+console.log('📦 MONGO_URL configurada?', mongoURL ? '✅ SIM' : '❌ NÃO');
 
 if (!mongoURL) {
   console.error('❌ ERRO: MONGO_URL não encontrada!');
-  console.error('Por favor, adicione a referência do MongoDB no serviço Node.js');
   process.exit(1);
 }
-
-console.log('🔄 Conectando ao MongoDB...');
 
 mongoose.connect(mongoURL)
   .then(() => {
     console.log('✅ MongoDB conectado com sucesso!');
   })
-  .catch((err) => {
-    console.error('❌ Erro detalhado:', err.message);
+  .catch((error) => {
+    console.error('❌ Erro ao conectar MongoDB:', error.message);
     process.exit(1);
   });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`📍 API disponível em: https://passionate-simplicity-production-0313.up.railway.app/api/getAll`);
 });
