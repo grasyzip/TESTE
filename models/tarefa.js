@@ -7,11 +7,13 @@ const schemaTarefa = new mongoose.Schema({
   },
   statusRealizada: {
     required: true,
-    type: Boolean
+    type: Boolean,
+    default: false  // Valor padrão
   }
 }, {
-  versionKey: false  // Remove o __v do MongoDB
+  timestamps: true,  // Adiciona createdAt e updatedAt
+  versionKey: false   // Remove o campo __v
 });
-
-// Força o nome da coleção como 'tarefas' (sem plural automático)
-module.exports = mongoose.model('Tarefa', schemaTarefa, 'tarefas');
+ 
+// Exporta o modelo
+module.exports = mongoose.model('Tarefa', schemaTarefa);
