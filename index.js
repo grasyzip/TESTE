@@ -1,40 +1,38 @@
 const express = require('express');
-const app = express();
+const cors = require('cors');
 const mongoose = require('mongoose');
+const tarefaRoutes = require('./routes/tarefaRoutes');
 
-// ==================== CORS CONFIGURADO CORRETAMENTE ====================
-app.use((req, res, next) => {
-  // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
-  const allowedOrigins = [
-    'https://todoteste.vercel.app/',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
-    'http://localhost:4200',            // Para desenvolvimento local
-    'http://localhost:3000'             // Para testes locais
-  ];
-  
-  const origin = req.headers.origin;
-  
-  // Permite a origem se estiver na lista OU usa * para desenvolvimento
-  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    res.setHeader("Access-Control-Allow-Origin", "*"); // Remove em produção
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  // Responde preflight requests (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  
-  next();
-});
-// ========================================================================
+const app = express();
+
+// ✅ CONFIGURAÇÃO CORS CORRETA (SUBSTITUA TUDO)
+app.use(cors({
+  origin: [
+    'https://todoteste.vercel.app',
+    'https://todoteste-91msx271t-yyarczip-2758s-projects.vercel.app',
+    'http://localhost:4200' // Para desenvolvimento local
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Cache-Control',  // ← ESSE É O HEADER QUE ESTÁ FALTANDO
+    'Pragma',
+    'Expires'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+// Se quiser permitir todas as origens (mais simples para teste):
+// app.use(cors()); // Isso permite tudo, mas menos seguro
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Suas rotas
+app.use('/api', tarefaRoutes);
+// ========================================================================
 const PORT = process.env.PORT || 3000;
 
 // Importa as rotas
