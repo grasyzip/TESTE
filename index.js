@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 app.use((req, res, next) => {
   // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
   const allowedOrigins = [
-    'https://seu-frontend.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
+    'https://todo-list-seven-delta-66.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
     'http://localhost:4200',            // Para desenvolvimento local
     'http://localhost:3000'             // Para testes locais
   ];
@@ -59,8 +59,8 @@ app.get('/', (req, res) => {
 // CONEXÃO COM MONGODB
 const mongoURL = process.env.MONGO_URL || process.env.MONGODB_URL;
 
-console.log('🚀 Iniciando servidor...');
-console.log('📦 Variável MONGO_URL:', mongoURL ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA');
+console.log('Iniciando servidor...');
+console.log('Variável MONGO_URL:', mongoURL ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA');
 
 if (!mongoURL) {
   console.error('❌ ERRO: MONGO_URL não encontrada nas variáveis de ambiente!');
@@ -90,9 +90,9 @@ async function connectToMongoDB() {
 // Conecta ao MongoDB antes de iniciar o servidor
 connectToMongoDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📍 API disponível em: /api/getAll`);
-    console.log(`🏠 Home: https://passionate-simplicity-production-0313.up.railway.app`);
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`API disponível em: /api/getAll`);
+    console.log(`Home: https://passionate-simplicity-production-0313.up.railway.app`);
   });
 });
 
