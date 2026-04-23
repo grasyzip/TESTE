@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 app.use((req, res, next) => {
   // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
   const allowedOrigins = [
-    'https://https://todolist-4q6r.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
+    'https://todolist-4q6r.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
     'http://localhost:4200',            // Para desenvolvimento local
     'http://localhost:3000'             // Para testes locais
   ];
