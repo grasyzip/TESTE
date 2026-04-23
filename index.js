@@ -2,16 +2,36 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-// CORS
+// ==================== CORS CONFIGURADO CORRETAMENTE ====================
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, DELETE');
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
+  // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
+  const allowedOrigins = [
+    'https://seu-frontend.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
+    'http://localhost:4200',            // Para desenvolvimento local
+    'http://localhost:3000'             // Para testes locais
+  ];
+  
+  const origin = req.headers.origin;
+  
+  // Permite a origem se estiver na lista OU usa * para desenvolvimento
+  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*"); // Remove em produção
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  // Responde preflight requests (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
   next();
 });
+// ========================================================================
 
 app.use(express.json());
 
@@ -20,6 +40,21 @@ const PORT = process.env.PORT || 3000;
 // Importa as rotas
 const routes = require('./routes/routes');
 app.use('/api', routes);
+
+// Rota de teste para a raiz (resolve o erro 404)
+app.get('/', (req, res) => {
+  res.json({
+    message: 'API Todo List está funcionando!',
+    endpoints: {
+      getAll: '/api/getAll',
+      create: '/api/post',
+      delete: '/api/delete/:id',
+      update: '/api/update/:id'
+    },
+    status: 'online',
+    timestamp: new Date()
+  });
+});
 
 // CONEXÃO COM MONGODB
 const mongoURL = process.env.MONGO_URL || process.env.MONGODB_URL;
@@ -37,11 +72,10 @@ if (!mongoURL) {
 async function connectToMongoDB() {
   try {
     await mongoose.connect(mongoURL, {
-      serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
+      serverSelectionTimeoutMS: 5000,
     });
     console.log('✅ MongoDB conectado com sucesso!');
     
-    // Testa se consegue escrever no banco
     const db = mongoose.connection.db;
     const collections = await db.listCollections().toArray();
     console.log('📚 Coleções disponíveis:', collections.map(c => c.name));
@@ -57,7 +91,8 @@ async function connectToMongoDB() {
 connectToMongoDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📍 API URL: https://passionate-simplicity-production-0313.up.railway.app`);
+    console.log(`📍 API disponível em: /api/getAll`);
+    console.log(`🏠 Home: https://passionate-simplicity-production-0313.up.railway.app`);
   });
 });
 
