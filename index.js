@@ -2,32 +2,43 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-// ==================== CORS CONFIGURADO CORRETAMENTE ====================
+// ==================== CONFIGURAÇÃO CORS ====================
+// Esta é a parte mais importante - resolve o erro do Vercel
 app.use((req, res, next) => {
-  // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
- apiURL = 'https://passionate-simplicity-production-0313.up.railway.app';
+  // Lista de origens permitidas (seus frontends)
+  const allowedOrigins = [
+    'https://todoteste.vercel.app',     // ← SEU SITE NO VERCEL
+    'http://localhost:4200',             // Desenvolvimento local Angular
+    'http://localhost:3000'              // Teste local
+  ];
   
   const origin = req.headers.origin;
   
-  // Permite a origem se estiver na lista OU usa * para desenvolvimento
-  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+  // Verifica se a origem está na lista permitida
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   } else {
-    res.setHeader("Access-Control-Allow-Origin", "*"); // Remove em produção
+    // Para desenvolvimento, permite qualquer origem
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
-  res.setHeader('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, DELETE, OPTIONS');
+  // Métodos HTTP permitidos
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  
+  // Headers permitidos
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Permite enviar cookies/credenciais
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   
-  // Responde preflight requests (OPTIONS)
+  // Responde imediatamente às requisições OPTIONS (preflight)
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.status(200).json({ message: 'CORS preflight OK' });
   }
   
   next();
 });
-// ========================================================================
+// ============================================================
 
 app.use(express.json());
 
@@ -37,66 +48,45 @@ const PORT = process.env.PORT || 3000;
 const routes = require('./routes/routes');
 app.use('/api', routes);
 
-// Rota de teste para a raiz (resolve o erro 404)
+// Rota raiz para teste
 app.get('/', (req, res) => {
   res.json({
     message: 'API Todo List está funcionando!',
+    cors: 'Configurado para Vercel',
     endpoints: {
       getAll: '/api/getAll',
       create: '/api/post',
       delete: '/api/delete/:id',
       update: '/api/update/:id'
-    },
-    status: 'online',
-    timestamp: new Date()
+    }
   });
 });
 
-// CONEXÃO COM MONGODB
+// Conexão MongoDB
 const mongoURL = process.env.MONGO_URL || process.env.MONGODB_URL;
 
-console.log('Iniciando servidor...');
-console.log('Variável MONGO_URL:', mongoURL ? '✅ CONFIGURADA' : '❌ NÃO CONFIGURADA');
+console.log('🚀 Iniciando servidor...');
+console.log('📦 MongoDB:', mongoURL ? '✅ Configurada' : '❌ Não configurada');
 
 if (!mongoURL) {
-  console.error('❌ ERRO: MONGO_URL não encontrada nas variáveis de ambiente!');
-  console.error('Por favor, configure a variável MONGO_URL no Railway');
+  console.error('❌ ERRO: MONGO_URL não encontrada');
   process.exit(1);
 }
 
-// Função para conectar ao MongoDB
 async function connectToMongoDB() {
   try {
-    await mongoose.connect(mongoURL, {
-      serverSelectionTimeoutMS: 5000,
-    });
+    await mongoose.connect(mongoURL);
     console.log('✅ MongoDB conectado com sucesso!');
-    
-    const db = mongoose.connection.db;
-    const collections = await db.listCollections().toArray();
-    console.log('📚 Coleções disponíveis:', collections.map(c => c.name));
-    
   } catch (error) {
     console.error('❌ Erro ao conectar MongoDB:', error.message);
-    console.error('Verifique se a URL do MongoDB está correta');
     process.exit(1);
   }
 }
 
-// Conecta ao MongoDB antes de iniciar o servidor
 connectToMongoDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`API disponível em: /api/getAll`);
-    console.log(`Home: https://passionate-simplicity-production-0313.up.railway.app`);
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`📍 API: https://passionate-simplicity-production-0313.up.railway.app`);
+    console.log(`✅ CORS liberado para: https://todoteste.vercel.app`);
   });
-});
-
-// Tratamento de erros após conectar
-mongoose.connection.on('error', (err) => {
-  console.error('❌ Erro no MongoDB após conexão:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB desconectado. Tentando reconectar...');
 });
