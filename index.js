@@ -5,11 +5,7 @@ const mongoose = require('mongoose');
 // ==================== CORS CONFIGURADO CORRETAMENTE ====================
 app.use((req, res, next) => {
   // Permite qualquer origem (para testes) - EM PRODUÇÃO, RESTRIJA PARA SEU DOMÍNIO
-  const allowedOrigins = [
-    'https://front-todolist-nu.vercel.app',  // ← SUBSTITUA PELA URL DO SEU FRONTEND NO VERCEL
-    'http://localhost:4200',            // Para desenvolvimento local
-    'http://localhost:3000'             // Para testes locais
-  ];
+ apiURL = 'https://passionate-simplicity-production-0313.up.railway.app';
   
   const origin = req.headers.origin;
   
