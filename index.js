@@ -2,8 +2,6 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-// ==================== CONFIGURAÇÃO CORS ====================
-// Esta é a parte mais importante - resolve o erro do Vercel
 app.use((req, res, next) => {
   // Lista de origens permitidas (seus frontends)
   const allowedOrigins = [
@@ -65,28 +63,28 @@ app.get('/', (req, res) => {
 // Conexão MongoDB
 const mongoURL = process.env.MONGO_URL || process.env.MONGODB_URL;
 
-console.log('🚀 Iniciando servidor...');
-console.log('📦 MongoDB:', mongoURL ? '✅ Configurada' : '❌ Não configurada');
+console.log('Iniciando servidor...');
+console.log('MongoDB:', mongoURL ? 'Configurada' : 'Não configurada');
 
 if (!mongoURL) {
-  console.error('❌ ERRO: MONGO_URL não encontrada');
+  console.error('ERRO: MONGO_URL não encontrada');
   process.exit(1);
 }
 
 async function connectToMongoDB() {
   try {
     await mongoose.connect(mongoURL);
-    console.log('✅ MongoDB conectado com sucesso!');
+    console.log('MongoDB conectado com sucesso!');
   } catch (error) {
-    console.error('❌ Erro ao conectar MongoDB:', error.message);
+    console.error('Erro ao conectar MongoDB:', error.message);
     process.exit(1);
   }
 }
 
 connectToMongoDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📍 API: https://passionate-simplicity-production-0313.up.railway.app`);
-    console.log(`✅ CORS liberado para: https://todoteste.vercel.app`);
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`API: https://apitarefasgrasielly255041.up.railway.app`);
+    console.log(`CORS liberado para: https://todoteste.vercel.app`);
   });
 });
